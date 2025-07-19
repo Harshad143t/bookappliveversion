@@ -6,46 +6,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <title>home page</title>
+    <title>BookMart - Home</title>  <!-- Improved title -->
 </head>
 
 <body id="home">
     <div id="nav">
         <p id="log">BookMart</p>
         <div id="searchdiv">
-            <input type="text" id="searchBook">
+            <input type="text" id="searchBook" placeholder="Search books...">
             <button id="searchBtn" class="fa-solid fa-magnifying-glass"></button>
         </div>
-        <button id="profile" onclick="logInbtn()">Log in</button>
-        <button onclick="postBook()" id="postBook">Upload book</button>
-        <span class="marquee" id="loggeduser">userId:</span>
+        <button id="profile">Log in</button>  <!-- Removed onclick, handled in JS -->
+        <button id="postBook">Upload book</button>  <!-- Removed onclick -->
+        <span class="marquee" id="loggeduser"></span>  <!-- Empty, will be filled by JS -->
     </div>
     <div id="container">
-       <div id="createBook" class="listbook">
-    <div id="bookSellPrice">
-        <input id="enterPrice" type="number" placeholder="Selling Price">
-    </div>
-    <div id="bookSellName">
-        <input id="enterbookname" type="text" placeholder="Book Name">
-    </div>
-    <div id="bookSellPhoto">
-        <input id="addphoto" type="text" placeholder="Photo">
-    </div>
-    <button onclick="cancel()" id="cancelBook">Cancel</button>
-    <button id="submitBook" onclick="addNewBook()">Post</button>
-</div>
-        <div id="buyPage">
-            <img id="buyPageImg" src="" alt="book image">
+        <div id="createBooksss" class="listbook" style="display: none;">  <!-- Hidden by default -->
+            <div id="bookSellPrice">
+                <input id="enterPrice" type="number" placeholder="Selling Price (RS)" min="1" max="1000">
+            </div>
+            <div id="bookSellName">
+                <input id="enterbookname" type="text" placeholder="Book Name" maxlength="100">
+            </div>
+            <div id="bookSellPhoto">
+                <input id="addphoto" type="url" placeholder="Image URL (optional)" pattern="https?://.+">
+            </div>
+            <button id="cancelBook">Cancel</button>  <!-- Removed onclick -->
+            <button id="submitBook">Post</button>  <!-- Removed onclick -->
+        </div>
+        <div id="buyPage" style="display: none;">  <!-- Hidden by default -->
+            <img id="buyPageImg" src="" alt="book image" onerror="this.src='https://via.placeholder.com/150'">
             <br>
             <hr>
-            <P id="bookPageName">Book Name :</P>
+            <P id="bookPageName">Book Name:</P>
             <br>
-            <P id="bookPagePrice">Book Price :</P>
+            <P id="bookPagePrice">Price:</P>
             <br>
-            <P id="ContactNumber">Contact :</P>
+            <P id="ContactNumber">Contact:</P>
             <br>
             <hr>
-            <P id="Para">Note : To purchase this book,
+            <P id="Para">Note: To purchase this book,
                 please reach out to the given
                 <U>contact number</U>. We kindly request
                 that the conversation remains about
@@ -54,10 +54,31 @@
                 understanding!
             </P>
             <br>
-            <button id="DoneBtn" onclick="Done()">Done</button>
+            <button id="DoneBtn">Done</button>  <!-- Removed onclick -->
         </div>
     </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+    <!-- Your Firebase Configuration -->
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyCYLtHUktuJHYgQOdGVa73zULAVyZlD4_U",
+        authDomain: "bookmartdb.firebaseapp.com",
+        databaseURL: "https://bookmartdb-default-rtdb.firebaseio.com",
+        projectId: "bookmartdb",
+        storageBucket: "bookmartdb.appspot.com",
+        messagingSenderId: "997350637603",
+        appId: "1:997350637603:web:2db8d258de8fc82d873196",
+        measurementId: "G-Y9D37GL21D"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
+
     <script src="script.js"></script>
 </body>
-
 </html>
