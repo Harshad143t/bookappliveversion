@@ -3,29 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>log in page</title>
+    <title>BookMart - Sign In</title>  <!-- Improved title -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body id="logbody">
     <form id="forum">
         <label id="ttl">Sign in</label>
+        <br><br>
+        <label for="phone">Enter Mobile Number</label>
         <br>
-        <br>
-        <label for="">Enter email or Mobile</label>
-        <br>
-        <input id="number" type="number" placeholder="Enter Phone">
+        <input id="number" type="tel" placeholder="Enter Phone Number" pattern="[0-9]{10}" required>
         <br>
         <label for="pass">Enter password</label>
         <br>
-        <input id="passwd" type="password" placeholder="Enter password" >
+        <input id="passwd" type="password" placeholder="Enter password" minlength="6" required>
         <br>
-        <button id="loggBtn" onclick="login()" >Sign in</button>
+        <button id="loggBtn" type="button">Sign in</button>  <!-- Changed to type="button" -->
         <br>
         <hr>
         <p id="or">OR</p>
         <br>
-        <a href="createAc.html" id="newidbtn1">Creat new account</a>
+        <a href="createAc.html" id="newidbtn1">Create new account</a>
+        <div id="error-message" style="color: red; margin-top: 10px;"></div>  <!-- Error message container -->
     </form>
+
+    <!-- Firebase SDKs (using v9.6.1 compat to match your JS code) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyCYLtHUktuJHYgQOdGVa73zULAVyZlD4_U",
+        authDomain: "bookmartdb.firebaseapp.com",
+        databaseURL: "https://bookmartdb-default-rtdb.firebaseio.com",
+        projectId: "bookmartdb",
+        storageBucket: "bookmartdb.appspot.com",
+        messagingSenderId: "997350637603",
+        appId: "1:997350637603:web:2db8d258de8fc82d873196",
+        measurementId: "G-Y9D37GL21D"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
+
     <script src="script.js"></script>
 </body>
 </html>
