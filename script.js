@@ -1,41 +1,37 @@
-const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxXV6h2DfKjW0EqdYdsrCKMEIeqjtiHr8cgBt5GQYZK8L1Jtnsh2bKZIwtpGxWTIIZf/exec";
+const SHEET_API_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
 
-// ==================== USER MANAGEMENT ====================
+// ==================== AUTHENTICATION ====================
 async function login() {
     const userId = document.getElementById("number").value.trim();
-    const password = document.getElementById("passwd").value.trim();
-    
-    // Validation
+    const password = document.getElementById("passwd").value;
+
     if (!userId || !password) {
         alert("Please enter both phone number and password");
         return;
     }
 
     try {
-        const response = await fetch(`${SHEET_API_URL}`, {
+        const response = await fetch(SHEET_API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 action: "login",
-                userId: userId,
-                password: password
+                userId,
+                password
             })
         });
 
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        
         const data = await response.json();
         
         if (data.success) {
             localStorage.setItem("loggedUser", userId);
-            localStorage.setItem("userToken", data.token || ""); // If using tokens
             window.location.href = "home.html";
         } else {
-            alert(data.message || "Invalid credentials");
+            alert(data.message || "Login failed. Please check your credentials.");
         }
     } catch (error) {
         console.error("Login error:", error);
-        alert(`Login failed: ${error.message}`);
+        alert("Network error. Please try again.");
     }
 }
 
@@ -44,17 +40,16 @@ async function createAccount() {
     const password = document.getElementById("Pass").value;
     const confirmPass = document.getElementById("passs").value;
 
-    // Validation
     if (!userId || !password) {
         alert("Please fill all fields");
         return;
     }
-    
+
     if (password.length < 6) {
         alert("Password must be at least 6 characters");
         return;
     }
-    
+
     if (password !== confirmPass) {
         alert("Passwords don't match");
         return;
@@ -66,8 +61,8 @@ async function createAccount() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 action: "createUser",
-                userId: userId,
-                password: password
+                userId,
+                password
             })
         });
 
@@ -75,49 +70,61 @@ async function createAccount() {
         
         if (data.success) {
             localStorage.setItem("loggedUser", userId);
-            alert("Account created successfully!");
             window.location.href = "home.html";
         } else {
-            alert(data.message || "Account creation failed. Please try a different phone number.");
+            alert(data.message || "Account creation failed. User may already exist.");
         }
     } catch (error) {
-        console.error("Account creation error:", error);
-        alert("Network error. Please check your connection and try again.");
+        console.error("Error:", error);
+        alert("Account creation failed. Please try again.");
     }
 }
 
-// ==================== BOOK MANAGEMENT ====================
-async function getBooks(filter = "") {
+// ==================== BOOK OPERATIONS ====================
+async function loadBooks() {
     try {
-        const response = await fetch(`${SHEET_API_URL}?action=getBooks&filter=${encodeURIComponent(filter)}`);
-        if (!response.ok) throw new Error("Failed to fetch books");
-        return await response.json();
+        const response = await fetch(`${SHEET_API_URL}?action=getBooks`);
+        const books = await response.json();
+        
+        const container = document.getElementById("bookContainer");
+        container.innerHTML = "";
+        
+        books.forEach(book => {
+            const bookElement = document.createElement("div");
+            bookElement.className = "book-card";
+            bookElement.innerHTML = `
+                <img src="${book.photoURL || 'default-book.jpg'}" 
+                     alt="${book.bookName}"
+                     onerror="this.src='default-book.jpg'">
+                <div class="book-info">
+                    <h3>${book.bookName}</h3>
+                    <p>Price: $${parseFloat(book.price).toFixed(2)}</p>
+                    ${book.userId === localStorage.getItem("loggedUser") ? 
+                        `<button onclick="deleteBook('${book.bookId}')">Delete</button>` : 
+                        `<button onclick="contactSeller('${book.userId}')">Contact</button>`}
+                </div>
+            `;
+            container.appendChild(bookElement);
+        });
     } catch (error) {
-        console.error("Error fetching books:", error);
+        console.error("Error loading books:", error);
         alert("Failed to load books. Please refresh the page.");
-        return [];
     }
 }
 
 async function addNewBook() {
-    const name = document.getElementById("enterbookname").value.trim();
+    const bookName = document.getElementById("enterbookname").value.trim();
     const price = parseFloat(document.getElementById("enterPrice").value);
-    const img = document.getElementById("addphoto").value.trim();
-    const owner = localStorage.getItem("loggedUser");
-    
-    // Validation
-    if (!owner) {
+    const photoURL = document.getElementById("addphoto").value.trim();
+    const userId = localStorage.getItem("loggedUser");
+
+    if (!userId) {
         alert("Please login first");
         return;
     }
-    
-    if (!name || isNaN(price)) {
-        alert("Please enter valid book name and price");
-        return;
-    }
-    
-    if (price <= 0 || price > 1000) {
-        alert("Price must be between 1 and 1000");
+
+    if (!bookName || isNaN(price) {
+        alert("Please enter valid book details");
         return;
     }
 
@@ -127,25 +134,25 @@ async function addNewBook() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 action: "addBook",
-                name: name,
-                price: price.toFixed(2),
-                img: img || "default-book.jpg",
-                owner: owner
+                userId,
+                bookName,
+                price,
+                photoURL
             })
         });
 
         const data = await response.json();
         
         if (data.success) {
-            displayBook(data.book);
-            clearBookForm();
-            toggleBookForm(false);
             alert("Book added successfully!");
+            loadBooks();
+            document.getElementById("createBook").style.display = "none";
+            clearBookForm();
         } else {
             alert(data.message || "Failed to add book");
         }
     } catch (error) {
-        console.error("Error adding book:", error);
+        console.error("Error:", error);
         alert("Failed to add book. Please try again.");
     }
 }
@@ -159,7 +166,7 @@ async function deleteBook(bookId) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 action: "deleteBook",
-                bookId: bookId,
+                bookId,
                 userId: localStorage.getItem("loggedUser")
             })
         });
@@ -167,13 +174,13 @@ async function deleteBook(bookId) {
         const data = await response.json();
         
         if (data.success) {
-            document.querySelector(`[data-id="${bookId}"]`).remove();
             alert("Book deleted successfully");
+            loadBooks();
         } else {
             alert(data.message || "Failed to delete book");
         }
     } catch (error) {
-        console.error("Delete error:", error);
+        console.error("Error:", error);
         alert("Failed to delete book. Please try again.");
     }
 }
@@ -185,44 +192,23 @@ function clearBookForm() {
     document.getElementById("addphoto").value = "";
 }
 
-function toggleBookForm(show) {
-    document.getElementById("createBook").style.display = show ? "flex" : "none";
+function toggleBookForm() {
+    const form = document.getElementById("createBook");
+    form.style.display = form.style.display === "none" ? "block" : "none";
 }
 
-function displayBook(book) {
-    const bookElement = document.createElement("div");
-    bookElement.className = "book";
-    bookElement.setAttribute("data-id", book.id);
-    bookElement.innerHTML = `
-        <img src="${book.img}" alt="${book.name}" onerror="this.src='default-book.jpg'">
-        <h3>${book.name}</h3>
-        <p>Price: $${book.price}</p>
-        ${book.owner === localStorage.getItem("loggedUser") ? 
-            `<button class="delete-btn" onclick="deleteBook('${book.id}')">Delete</button>` : 
-            `<button class="buy-btn">Contact Seller</button>`}
-    `;
-    document.getElementById("bookContainer").appendChild(bookElement);
+function contactSeller(userId) {
+    alert(`Contact seller at: ${userId}`);
 }
 
-// ==================== INITIALIZATION ====================
-document.addEventListener("DOMContentLoaded", async () => {
-    // Check login status
-    const loggedUser = localStorage.getItem("loggedUser");
-    if (loggedUser) {
-        document.getElementById("userDisplay").textContent = loggedUser;
+// Initialize on page load
+document.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("loggedUser")) {
+        document.getElementById("userDisplay").textContent = 
+            localStorage.getItem("loggedUser");
     }
-
-    // Load books
+    
     if (document.getElementById("bookContainer")) {
-        const books = await getBooks();
-        books.forEach(book => displayBook(book));
+        loadBooks();
     }
-
-    // Setup event listeners
-    document.getElementById("searchBtn")?.addEventListener("click", async () => {
-        const searchTerm = document.getElementById("searchBook").value;
-        const books = await getBooks(searchTerm);
-        document.getElementById("bookContainer").innerHTML = "";
-        books.forEach(book => displayBook(book));
-    });
 });
