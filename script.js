@@ -112,34 +112,30 @@ async function loadBooks() {
     }
 }
 
-async function addNewBook() {
-    const bookName = document.getElementById("enterbookname").value.trim();
-    const price = parseFloat(document.getElementById("enterPrice").value);
-    const photoURL = document.getElementById("addphoto").value.trim();
-    const userId = localStorage.getItem("loggedUser");
+function addNewBook() {
+  const bookName = document.getElementById("bookNameInput").value.trim();
+  const price = document.getElementById("bookPriceInput").value.trim();
 
-    if (!userId) {
-        alert("Please login first");
-        return;
-    }
+  if (!bookName || isNaN(price)) {
+    alert("Please enter a valid book name and numeric price.");
+    return;
+  }
 
-    if (!bookName || isNaN(price) {
-        alert("Please enter valid book details");
-        return;
-    }
+  fetch(`${scriptURL}?action=addBook&name=${encodeURIComponent(bookName)}&price=${encodeURIComponent(price)}`)
+    .then((res) => res.text())
+    .then((response) => {
+      console.log("Book Added:", response);
+      alert("Book added successfully!");
+      document.getElementById("bookNameInput").value = "";
+      document.getElementById("bookPriceInput").value = "";
+      fetchBooks(); // refresh book list
+    })
+    .catch((error) => {
+      console.error("Error adding book:", error);
+      alert("Failed to add book.");
+    });
+}
 
-    try {
-        const response = await fetch(SHEET_API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                action: "addBook",
-                userId,
-                bookName,
-                price,
-                photoURL
-            })
-        });
 
         const data = await response.json();
         
