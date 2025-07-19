@@ -3,33 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>create new account</title>
+    <title>Create New Account</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body id="creatBody">
     <form id="forum">
         <label id="ttl">Create your Account</label>
+        <br><br>
+        <label for="">Enter Mobile Number</label>
         <br>
-        <br>
-        <label for="">Enter email or Mobile</label>
-        <br>
-        <input id="number" type="number" placeholder="Enter Phone">
+        <input id="number" type="number" placeholder="Enter Phone" min="1000000000" max="9999999999">
         <br>
         <label for="">Create password</label>
         <br>
-        <input id="Pass" type="password" placeholder="Create password" >
+        <input id="Pass" type="password" placeholder="Create password">
         <br>
-        <label for="">confirm password</label>
+        <label for="">Confirm password</label>
         <br>
-        <input id="passs" type="password" placeholder="confirm password" >
+        <input id="passs" type="password" placeholder="Confirm password">
         <br>
-        <button onclick="createAccount()" id="newidbtn">Creat account</button>
+        <button onclick="creatId()" id="newidbtn">Create account</button>
         <br>
         <hr>
-        <label for="">Allready have an account?</label>
-        
+        <label for="">Already have an account?</label>
         <a id="btn" href="index.html">Log in</a>
     </form>
+
+    <!-- Firebase SDKs (using same version as your existing code) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyCYLtHUktuJHYgQOdGVa73zULAVyZlD4_U",
+        authDomain: "bookmartdb.firebaseapp.com",
+        databaseURL: "https://bookmartdb-default-rtdb.firebaseio.com",
+        projectId: "bookmartdb",
+        storageBucket: "bookmartdb.appspot.com",
+        messagingSenderId: "997350637603",
+        appId: "1:997350637603:web:2db8d258de8fc82d873196",
+        measurementId: "G-Y9D37GL21D"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
+
     <script src="script.js"></script>
 </body>
 </html>
