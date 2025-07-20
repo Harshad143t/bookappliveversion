@@ -79,7 +79,7 @@ function displayBook(book) {
       <p class="price">Price: <span class="Price">${book.price}</span> RS</p>
       <hr id="prc">
       <p class="timestamp">Posted on: ${book.time || 'unknown'}</p>
-      <button class="buyBtn">Buy now</button>
+      <button class="buyBtn" onclick = "buyBook()">Buy now</button>
     </div>`;
 
   const container = document.getElementById("container");
