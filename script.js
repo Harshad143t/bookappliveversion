@@ -2,6 +2,9 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 document.addEventListener("DOMContentLoaded", function () {
+  console.log("DOMContentLoaded fired");
+
+  // Profile button setup
   const profileBtn = document.getElementById("profile");
   if (profileBtn) {
     const user = auth.currentUser;
@@ -19,14 +22,32 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     loadBooks();
   }
+
+  // Ensure submitBook event listener is attached
+  const submitBookBtn = document.getElementById("submitBook");
+  if (submitBookBtn) {
+    console.log("Attaching event listener to submitBook button");
+    submitBookBtn.addEventListener("click", addNewBook);
+  } else {
+    console.error("submitBook button not found in DOM");
+  }
 });
 
 function loadBooks(searchTerm = '') {
+  console.log("Loading books with search term:", searchTerm);
   const booksRef = db.ref('books/');
   booksRef.on('value', (snapshot) => {
     const container = document.getElementById("container");
-    if (!container) return;
+    if (!container) {
+      console.error("Container element not found");
+      return;
+    }
     container.innerHTML = "";
+    if (!snapshot.exists()) {
+      console.log("No books found in database");
+      container.innerHTML = "<p>No books available.</p>";
+      return;
+    }
     snapshot.forEach(childSnapshot => {
       const book = childSnapshot.val();
       book.id = childSnapshot.key;
@@ -34,10 +55,15 @@ function loadBooks(searchTerm = '') {
         displayBook(book);
       }
     });
+    console.log("Books loaded:", snapshot.val());
+  }, (error) => {
+    console.error("Error loading books:", error);
+    alert("Failed to load books: " + error.message);
   });
 }
 
 function displayBook(book) {
+  console.log("Displaying book:", book);
   const newBook = document.createElement("div");
   newBook.className = "books";
   newBook.setAttribute("data-id", book.id);
@@ -139,6 +165,7 @@ function creatId(event) {
 }
 
 function postBook() {
+  console.log("postBook called");
   if (!auth.currentUser) {
     alert("Please log in to post a book");
     window.location.href = "index.html";
@@ -150,74 +177,86 @@ function postBook() {
 }
 
 function cancel() {
+  console.log("cancel called");
   document.getElementById("createBooksss").style.display = "none";
   clearInputs();
 }
 
 function addNewBook() {
   console.log("addNewBook called");
-  const bookPrice = document.getElementById("enterPrice").value;
   const bookName = document.getElementById("enterbookname").value.trim();
-  const bookimg = document.getElementById("addphoto").value.trim();
-  console.log("Book Name:", bookName, "Price:", bookPrice, "Img:", bookimg);
+  const bookPrice = parseFloat(document.getElementById("enterPrice").value.trim());
+  const bookPhoto = document.getElementById("addphoto").value.trim();
 
-  if (!bookPrice || !bookName) {
-    console.log("Missing name or price");
-    return alert("Book name and price are required");
+  console.log("Input values - Name:", bookName, "Price:", bookPrice, "Photo:", bookPhoto);
+
+  if (!bookName || !bookPrice) {
+    console.log("Validation failed: Missing name or price");
+    alert("Book name and price are required");
+    return;
   }
   if (!/^[A-Za-z0-9\s]+$/.test(bookName)) {
-    console.log("Invalid book name");
-    return alert("Book name can only contain letters, numbers and spaces");
+    console.log("Validation failed: Invalid book name");
+    alert("Book name can only contain letters, numbers, and spaces");
+    return;
   }
-  if (bookPrice > 1000) {
-    console.log("Price too high");
-    return alert("Maximum price is 1000 RS");
+  if (isNaN(bookPrice) || bookPrice <= 0 || bookPrice > 1000) {
+    console.log("Validation failed: Invalid price");
+    alert("Price must be a number between 0 and 1000 RS");
+    return;
   }
 
   const user = auth.currentUser;
   if (!user) {
-    console.log("User not logged in");
-    return alert("You need to log in first");
+    console.log("Validation failed: User not logged in");
+    alert("You need to log in first");
+    return;
   }
 
-  const newBook = {
+  const bookData = {
     name: bookName,
     price: bookPrice,
-    img: bookimg || "https://via.placeholder.com/150",
+    img: bookPhoto || "https://via.placeholder.com/150",
     owner: user.uid,
     ownerEmail: user.email,
     time: new Date().toLocaleString()
   };
-  console.log("New Book Object:", newBook);
+  console.log("Book data to be sent:", bookData);
 
   const newBookRef = db.ref("books").push();
-  newBookRef.set(newBook).then(() => {
-    console.log("Book added successfully");
-    alert("Book added successfully");
-    cancel();
+  newBookRef.set(bookData).then(() => {
+    console.log("Book added successfully to Firebase");
+    alert("✅ Book posted successfully!");
+    clearInputs();
+    document.getElementById("createBooksss").style.display = "none";
   }).catch((error) => {
     console.error("Failed to add book:", error);
-    alert("Failed to add book: " + error.message);
+    alert("❌ Failed to post book: " + error.message);
   });
 }
 
 function removeBook(bookId) {
+  console.log("removeBook called for bookId:", bookId);
   if (!confirm("Are you sure you want to delete this book?")) return;
 
   db.ref(`books/${bookId}`).remove().then(() => {
+    console.log("Book deleted successfully");
     alert("Book deleted successfully");
   }).catch((error) => {
-    alert ("Failed to delete book: " + error.message);
+    console.error("Failed to delete book:", error);
+    alert("Failed to delete book: " + error.message);
   });
 }
 
 function clearInputs() {
+  console.log("clearInputs called");
   document.getElementById("enterbookname").value = "";
   document.getElementById("enterPrice").value = "";
   document.getElementById("addphoto").value = "";
 }
 
 function buyBook(ownerId, name, price, img) {
+  console.log("buyBook called for ownerId:", ownerId);
   db.ref(`users/${ownerId}`).once('value').then((snapshot) => {
     const owner = snapshot.val();
     document.getElementById("buyPageImg").src = img || "https://via.placeholder.com/150";
@@ -225,7 +264,8 @@ function buyBook(ownerId, name, price, img) {
     document.getElementById("bookPagePrice").innerText = `Price: ${price} RS`;
     document.getElementById("ContactNumber").innerText = `Contact: ${owner?.phone || ownerId}`;
     document.getElementById("buyPage").style.display = "flex";
-  }).catch(() => {
+  }).catch((error) => {
+    console.error("Error fetching owner data:", error);
     document.getElementById("buyPageImg").src = img || "https://via.placeholder.com/150";
     document.getElementById("bookPageName").innerText = `Book Name: ${name}`;
     document.getElementById("bookPagePrice").innerText = `Price: ${price} RS`;
@@ -251,7 +291,6 @@ document.getElementById("searchBook")?.addEventListener("keyup", (e) => {
 
 document.getElementById("postBook")?.addEventListener("click", postBook);
 document.getElementById("cancelBook")?.addEventListener("click", cancel);
-document.getElementById("submitBook")?.addEventListener("click", addNewBook);
 document.getElementById("DoneBtn")?.addEventListener("click", Done);
 document.getElementById("loggBtn")?.addEventListener("click", login);
 document.getElementById("createForm")?.addEventListener("submit", creatId);
