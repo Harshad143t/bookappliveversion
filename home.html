@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <title>BookMart - Home</title>  <!-- Improved title -->
+    <title>BookMart - Home</title>
 </head>
 
 <body id="home">
@@ -16,12 +16,12 @@
             <input type="text" id="searchBook" placeholder="Search books...">
             <button id="searchBtn" class="fa-solid fa-magnifying-glass"></button>
         </div>
-        <button id="profile">Log in</button>  <!-- Removed onclick, handled in JS -->
-        <button id="postBook">Upload book</button>  <!-- Removed onclick -->
-        <span class="marquee" id="loggeduser"></span>  <!-- Empty, will be filled by JS -->
+        <button id="profile">Log in</button>
+        <button id="postBook">Upload book</button>
+        <span class="marquee" id="loggeduser"></span>
     </div>
     <div id="container">
-        <div id="createBooksss" class="listbook" style="display: none;">  <!-- Hidden by default -->
+        <div id="createBooksss" class="listbook" style="display: none;">
             <div id="bookSellPrice">
                 <input id="enterPrice" type="number" placeholder="Selling Price (RS)" min="1" max="1000">
             </div>
@@ -31,39 +31,37 @@
             <div id="bookSellPhoto">
                 <input id="addphoto" type="url" placeholder="Image URL (optional)" pattern="https?://.+">
             </div>
-            <button id="cancelBook">Cancel</button>  <!-- Removed onclick -->
-            <button id="submitBook">Post</button>  <!-- Removed onclick -->
+            <button id="cancelBook">Cancel</button>
+            <button id="submitBook">Post</button>
         </div>
-        <div id="buyPage" style="display: none;">  <!-- Hidden by default -->
+        <div id="buyPage" style="display: none;">
             <img id="buyPageImg" src="" alt="book image" onerror="this.src='https://via.placeholder.com/150'">
             <br>
             <hr>
-            <P id="bookPageName">Book Name:</P>
+            <p id="bookPageName">Book Name:</p>
             <br>
-            <P id="bookPagePrice">Price:</P>
+            <p id="bookPagePrice">Price:</p>
             <br>
-            <P id="ContactNumber">Contact:</P>
+            <p id="ContactNumber">Contact:</p>
             <br>
             <hr>
-            <P id="Para">Note: To purchase this book,
+            <p id="Para">Note: To purchase this book,
                 please reach out to the given
-                <U>contact number</U>. We kindly request
+                <u>contact number</u>. We kindly request
                 that the conversation remains about
                 the book, such as its condition, price,
                 and pickup details. Thank you for your
                 understanding!
-            </P>
+            </p>
             <br>
-            <button id="DoneBtn">Done</button>  <!-- Removed onclick -->
+            <button id="DoneBtn">Done</button>
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
-    <!-- Your Firebase Configuration -->
     <script>
       const firebaseConfig = {
         apiKey: "AIzaSyCYLtHUktuJHYgQOdGVa73zULAVyZlD4_U",
@@ -75,7 +73,6 @@
         appId: "1:997350637603:web:2db8d258de8fc82d873196",
         measurementId: "G-Y9D37GL21D"
       };
-      // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
     </script>
 
