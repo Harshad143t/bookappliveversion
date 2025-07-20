@@ -155,16 +155,30 @@ function cancel() {
 }
 
 function addNewBook() {
+  console.log("addNewBook called");
   const bookPrice = document.getElementById("enterPrice").value;
   const bookName = document.getElementById("enterbookname").value.trim();
   const bookimg = document.getElementById("addphoto").value.trim();
+  console.log("Book Name:", bookName, "Price:", bookPrice, "Img:", bookimg);
 
-  if (!bookPrice || !bookName) return alert("Book name and price are required");
-  if (!/^[A-Za-z0-9\s]+$/.test(bookName)) return alert("Book name can only contain letters, numbers and spaces");
-  if (bookPrice > 1000) return alert("Maximum price is 1000 RS");
+  if (!bookPrice || !bookName) {
+    console.log("Missing name or price");
+    return alert("Book name and price are required");
+  }
+  if (!/^[A-Za-z0-9\s]+$/.test(bookName)) {
+    console.log("Invalid book name");
+    return alert("Book name can only contain letters, numbers and spaces");
+  }
+  if (bookPrice > 1000) {
+    console.log("Price too high");
+    return alert("Maximum price is 1000 RS");
+  }
 
   const user = auth.currentUser;
-  if (!user) return alert("You need to log in first");
+  if (!user) {
+    console.log("User not logged in");
+    return alert("You need to log in first");
+  }
 
   const newBook = {
     name: bookName,
@@ -174,12 +188,15 @@ function addNewBook() {
     ownerEmail: user.email,
     time: new Date().toLocaleString()
   };
+  console.log("New Book Object:", newBook);
 
   const newBookRef = db.ref("books").push();
   newBookRef.set(newBook).then(() => {
+    console.log("Book added successfully");
     alert("Book added successfully");
     cancel();
   }).catch((error) => {
+    console.error("Failed to add book:", error);
     alert("Failed to add book: " + error.message);
   });
 }
@@ -190,7 +207,7 @@ function removeBook(bookId) {
   db.ref(`books/${bookId}`).remove().then(() => {
     alert("Book deleted successfully");
   }).catch((error) => {
-    alert("Failed to delete book: " + error.message);
+    alert ("Failed to delete book: " + error.message);
   });
 }
 
