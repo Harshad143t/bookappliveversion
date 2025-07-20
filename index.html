@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BookMart - Sign In</title>  <!-- Improved title -->
+    <title>BookMart - Sign In</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body id="logbody">
-    <form id="forum">
+    <form id="loginForm">
         <label id="ttl">Sign in</label>
         <br><br>
         <label for="phone">Enter Mobile Number</label>
@@ -18,21 +18,19 @@
         <br>
         <input id="passwd" type="password" placeholder="Enter password" minlength="6" required>
         <br>
-        <button id="loggBtn" type="button">Sign in</button>  <!-- Changed to type="button" -->
+        <button id="loggBtn" type="button">Sign in</button>
         <br>
         <hr>
         <p id="or">OR</p>
         <br>
         <a href="createAc.html" id="newidbtn1">Create new account</a>
-        <div id="error-message" style="color: red; margin-top: 10px;"></div>  <!-- Error message container -->
+        <div id="error-message" style="color: red; margin-top: 10px;"></div>
     </form>
 
-    <!-- Firebase SDKs (using v9.6.1 compat to match your JS code) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
-    <!-- Firebase Configuration -->
     <script>
       const firebaseConfig = {
         apiKey: "AIzaSyCYLtHUktuJHYgQOdGVa73zULAVyZlD4_U",
@@ -44,7 +42,6 @@
         appId: "1:997350637603:web:2db8d258de8fc82d873196",
         measurementId: "G-Y9D37GL21D"
       };
-      // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
     </script>
 
