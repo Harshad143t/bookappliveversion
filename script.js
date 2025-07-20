@@ -1,38 +1,35 @@
-// Initialize Firebase Auth and Database (Compat SDK)
 const auth = firebase.auth();
 const db = firebase.database();
 
-// DOM Load and Display Existing Books
 document.addEventListener("DOMContentLoaded", function () {
-  const user = auth.currentUser;
   const profileBtn = document.getElementById("profile");
-
-  if (user) {
-    document.getElementById("loggeduser").innerText = `User: ${user.email}`;
-    profileBtn.innerText = "Log out";
-    profileBtn.onclick = function () {
-      if (confirm("Are you sure you want to log out?")) {
-        logOut();
-      }
-    };
-  } else {
-    profileBtn.innerText = "Log in";
-    profileBtn.onclick = logInbtn;
+  if (profileBtn) {
+    const user = auth.currentUser;
+    if (user) {
+      document.getElementById("loggeduser").innerText = `User: ${user.email}`;
+      profileBtn.innerText = "Log out";
+      profileBtn.onclick = function () {
+        if (confirm("Are you sure you want to log out?")) {
+          logOut();
+        }
+      };
+    } else {
+      profileBtn.innerText = "Log in";
+      profileBtn.onclick = logInbtn;
+    }
+    loadBooks();
   }
-
-  loadBooks();
 });
 
 function loadBooks(searchTerm = '') {
   const booksRef = db.ref('books/');
   booksRef.on('value', (snapshot) => {
     const container = document.getElementById("container");
+    if (!container) return;
     container.innerHTML = "";
-
     snapshot.forEach(childSnapshot => {
       const book = childSnapshot.val();
       book.id = childSnapshot.key;
-
       if (!searchTerm || book.name.toLowerCase().includes(searchTerm.toLowerCase())) {
         displayBook(book);
       }
@@ -60,7 +57,7 @@ function displayBook(book) {
     </div>`;
 
   const container = document.getElementById("container");
-  container.prepend(newBook);
+  if (container) container.prepend(newBook);
 
   const currentUser = auth.currentUser;
   const deleteBtn = newBook.querySelector(".bookDelBtn");
@@ -103,28 +100,42 @@ function login(event) {
   });
 }
 
-function creatId() {
-  const phone = document.getElementById("number").value.trim();
-  const password = document.getElementById("Pass").value.trim();
-  const confirmPass = document.getElementById("passs").value.trim();
+function creatId(event) {
+  event.preventDefault();
+  let number = document.getElementById("number").value.trim();
+  let password = document.getElementById("Pass").value;
+  let confirmPassword = document.getElementById("passs").value;
 
-  if (!phone || !password || !confirmPass) return alert("All fields are required");
-  if (phone.length < 10) return alert("Phone number must be at least 10 digits");
-  if (password.length < 6) return alert("Password must be at least 6 characters");
-  if (password !== confirmPass) return alert("Passwords don't match");
+  if (!number || !password || !confirmPassword) {
+    alert("Please fill all fields.");
+    return;
+  }
 
-  const email = `${phone}@bookmart.com`;
+  if (number.length !== 10) {
+    alert("Mobile number must be exactly 10 digits.");
+    return;
+  }
 
-  auth.createUserWithEmailAndPassword(email, password).then((userCredential) => {
-    db.ref(`users/${userCredential.user.uid}`).set({
-      phone: phone,
-      createdAt: new Date().toISOString()
+  if (password !== confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
+
+  let email = number + "@bookmart.com";
+
+  auth.createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      let user = userCredential.user;
+      db.ref("users/" + user.uid).set({
+        phone: number,
+        uid: user.uid
+      });
+      alert("Account created successfully!");
+      window.location.href = "index.html";
+    })
+    .catch((error) => {
+      alert("Error: " + error.message);
     });
-    alert("Account created successfully!");
-    window.location.href = "home.html";
-  }).catch((error) => {
-    alert("Account creation failed: " + error.message);
-  });
 }
 
 function postBook() {
@@ -190,7 +201,7 @@ function clearInputs() {
 }
 
 function buyBook(ownerId, name, price, img) {
-  db.ref(`users/${ownerId}`).get().then((snapshot) => {
+  db.ref(`users/${ownerId}`).once('value').then((snapshot) => {
     const owner = snapshot.val();
     document.getElementById("buyPageImg").src = img || "https://via.placeholder.com/150";
     document.getElementById("bookPageName").innerText = `Book Name: ${name}`;
@@ -210,20 +221,20 @@ function Done() {
   document.getElementById("buyPage").style.display = "none";
 }
 
-document.getElementById("searchBtn").addEventListener("click", () => {
+document.getElementById("searchBtn")?.addEventListener("click", () => {
   const searchTerm = document.getElementById("searchBook").value.trim();
   loadBooks(searchTerm);
 });
 
-document.getElementById("searchBook").addEventListener("keyup", (e) => {
+document.getElementById("searchBook")?.addEventListener("keyup", (e) => {
   if (e.key === "Enter") {
     loadBooks(document.getElementById("searchBook").value.trim());
   }
 });
 
-// Attach event listeners for buttons
 document.getElementById("postBook")?.addEventListener("click", postBook);
 document.getElementById("cancelBook")?.addEventListener("click", cancel);
 document.getElementById("submitBook")?.addEventListener("click", addNewBook);
 document.getElementById("DoneBtn")?.addEventListener("click", Done);
 document.getElementById("loggBtn")?.addEventListener("click", login);
+document.getElementById("createForm")?.addEventListener("submit", creatId);
